@@ -1,7 +1,7 @@
-import argparse
 import atexit
 import copy
 import threading
+import os
 import queue
 
 import attr
@@ -135,10 +135,7 @@ def message_handler(pool: queue.Queue, vkApi: VkApi):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-token')
-    args = parser.parse_args()
-    access_token = args.token
+    access_token = os.environ['ACCESS_TOKEN']
 
     vkApi = VkApi(access_token)
     long_poll_server, error = vkApi.get_long_poll_server()
