@@ -4,8 +4,6 @@ import threading
 import os
 import queue
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
 import attr
 import requests
 
@@ -136,28 +134,6 @@ def message_handler(pool: queue.Queue, vkApi: VkApi):
         pool.task_done()
 
 
-class BlankHandler(BaseHTTPRequestHandler):
-
-    def do_GET(self):
-        self.send_response(200)
-
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(bytes('', "utf8"))
-        return
-
-
-def run_server():
-    server_address = ('', os.environ.get('PORT', 8080))
-    httpd = HTTPServer(server_address, BlankHandler)
-
-    def start():
-        httpd.serve_forever()
-
-    message_handler_thread = threading.Thread(target=start)
-    message_handler_thread.start()
-
-
 def main():
     access_token = os.environ['ACCESS_TOKEN']
 
@@ -173,7 +149,6 @@ def main():
                                               args=[messages_pool, vkApi])
     message_handler_thread.start()
 
-    run_server()
     while True:
         ts, updates = vkApi.get_long_poll_update(long_poll_server, 0)
         for update in updates:
